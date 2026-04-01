@@ -1,36 +1,19 @@
-function recursive(a){
-    Object.keys(a).forEach(el=>{
-      if(el.charAt(el.length-1)!=="." && typeof a[el]!== "string"){
-        let val = a[el];
-        if(!val){
-            val= a[el+"."]
-        }
-        const nuovakey = el+"."
-        a[nuovakey]= a[el]
-        delete a[el]
-        recursive(a)
-      }
-      if(a[el] && typeof a[el]!= "string"){
-        Object.keys(a[el]).forEach((u, i)=>{
-          const str = el+u+"."
-          a[str] = a[el][u];        
-        })
-        
-        delete a[el];
-        recursive(a)
-      }
-    })
-}
+/**
+ * Appiattisce un oggetto annidato in notazione dot-notation.
+ * @param {Object} obj - L'oggetto da appiattire
+ * @param {string} prefix - Prefisso corrente (uso interno)
+ * @returns {Object} - Oggetto appiattito
+ */
+function flatten(obj, prefix = "") {
+  return Object.entries(obj).reduce((acc, [key, value]) => {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
 
-function clearSpot(a){
-    Object.keys(a).forEach(el=>{
-      if(!a[el]){
-        delete a[el]
-      }else if(el.charAt(el.length-1)==="."){
-        const nuovaKey = el.slice(0, -1);
+    if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+      Object.assign(acc, flatten(value, fullKey));
+    } else {
+      acc[fullKey] = value;
+    }
 
-        a[nuovaKey] = a[el];
-        delete a[el]
-      }
-    })
+    return acc;
+  }, {});
 }
